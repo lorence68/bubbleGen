@@ -1,0 +1,37 @@
+from PIL import Image, ImageSequence
+import os
+
+def apply_mask(image_path, mask_path, output_dir):
+    image = Image.open(image_path)
+    mask = Image.open(mask_path).convert("L")
+
+    filename, ext = os.path.splitext(os.path.basename(image_path))
+
+    output_ext = ext if ext.lower() == '.gif' else '.png'
+    output_path = os.path.join(output_dir, f"masked_{filename}{output_ext}")
+
+    if ext.lower() == '.gif':
+        frames = []
+        for frame in ImageSequence.Iterator(image):
+            frame = frame.convert("RGBA")
+            mask_resized = mask.resize(frame.size)
+            frame.putalpha(mask_resized)
+
+            frames.append(frame)
+    else:
+        image = image.convert("RGBA")
+
+        mask = mask.resize(image.size)
+        image.putalpha(mask)
+        image.save(output_path, "PNG")
+
+input_image_path = r"C:\Users\loren\Desktop\bubble\test.jpg"
+
+mask_image_path = r"C:\Users\loren\Desktop\bubble\bubble.png"
+
+output_dir = r"C:\Users\loren\Desktop\bubble"
+
+apply_mask(input_image_path, mask_image_path, output_dir)
+
+
+
